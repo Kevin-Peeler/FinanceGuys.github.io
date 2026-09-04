@@ -1,5 +1,636 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Project Tracker</title>
+
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+    crossorigin="anonymous"
+  >
+
+  <style>
+    body {
+      background-color: #f5f7fa;
+    }
+
+    .hero {
+      background: #212529;
+      color: white;
+      padding: 50px 0;
+    }
+
+    .card {
+      border: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .section-title {
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    footer {
+      margin-top: 60px;
+      padding: 25px;
+      text-align: center;
+      background: #212529;
+      color: white;
+    }
+  </style>
+</head>
+
 <body>
-  <h1>
-    Finance Guys
-  </h1>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+
+    <a class="navbar-brand fw-bold" href="#">
+      Project Tracker
+    </a>
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+
+      <ul class="navbar-nav ms-auto">
+
+        <li class="nav-item">
+          <a class="nav-link" href="#overview">Overview</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#team">Team</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#tasks">Tasks</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#timeline">Timeline</a>
+        </li>
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+
+    <h1 class="display-4 fw-bold">
+      Project Dashboard
+    </h1>
+
+    <p class="lead">
+      Track our project goals, tasks, responsibilities, deadlines, and progress.
+    </p>
+
+    <span class="badge bg-success fs-6">
+      Project Status: On Track
+    </span>
+
+  </div>
+</section>
+
+
+<!-- MAIN CONTENT -->
+<div class="container my-5">
+
+
+  <!-- PROJECT OVERVIEW -->
+  <section id="overview">
+
+    <h2 class="section-title">
+      Project Overview
+    </h2>
+
+    <div class="card mb-4">
+
+      <div class="card-body">
+
+        <h4 class="card-title">
+          Project Name
+        </h4>
+
+        <p class="card-text">
+          Enter a short description of your project here. Explain what
+          your team is working on and what the project is supposed to accomplish.
+        </p>
+
+        <hr>
+
+        <div class="row">
+
+          <div class="col-md-4">
+            <strong>Start Date</strong>
+            <p>September 1, 2026</p>
+          </div>
+
+          <div class="col-md-4">
+            <strong>Deadline</strong>
+            <p>December 1, 2026</p>
+          </div>
+
+          <div class="col-md-4">
+            <strong>Project Lead</strong>
+            <p>Your Name</p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- PROGRESS -->
+  <section>
+
+    <h2 class="section-title">
+      Overall Progress
+    </h2>
+
+    <div class="card mb-5">
+
+      <div class="card-body">
+
+        <div class="d-flex justify-content-between">
+          <p class="fw-bold">Project Completion</p>
+          <p>45%</p>
+        </div>
+
+        <div class="progress" style="height: 30px;">
+
+          <div
+            class="progress-bar"
+            role="progressbar"
+            style="width: 45%;"
+            aria-valuenow="45"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            45%
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- PROJECT GOALS -->
+  <section>
+
+    <h2 class="section-title">
+      Project Goals
+    </h2>
+
+    <div class="row g-4 mb-5">
+
+      <div class="col-md-4">
+
+        <div class="card h-100">
+
+          <div class="card-body">
+
+            <h5 class="card-title">
+              Goal 1
+            </h5>
+
+            <p>
+              Research the main problem and collect important information.
+            </p>
+
+            <span class="badge bg-success">
+              Complete
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="col-md-4">
+
+        <div class="card h-100">
+
+          <div class="card-body">
+
+            <h5 class="card-title">
+              Goal 2
+            </h5>
+
+            <p>
+              Analyze the information and develop possible solutions.
+            </p>
+
+            <span class="badge bg-warning text-dark">
+              In Progress
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="col-md-4">
+
+        <div class="card h-100">
+
+          <div class="card-body">
+
+            <h5 class="card-title">
+              Goal 3
+            </h5>
+
+            <p>
+              Create the final recommendation and presentation.
+            </p>
+
+            <span class="badge bg-secondary">
+              Not Started
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- TEAM -->
+  <section id="team">
+
+    <h2 class="section-title">
+      Team Members
+    </h2>
+
+    <div class="table-responsive mb-5">
+
+      <table class="table table-striped table-hover">
+
+        <thead class="table-dark">
+
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Responsibility</th>
+            <th>Status</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          <tr>
+            <td>Your Name</td>
+            <td>Project Lead</td>
+            <td>Organization and final review</td>
+            <td>
+              <span class="badge bg-success">
+                Active
+              </span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Team Member 2</td>
+            <td>Research</td>
+            <td>Collect project information</td>
+            <td>
+              <span class="badge bg-success">
+                Active
+              </span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Team Member 3</td>
+            <td>Analysis</td>
+            <td>Analyze project data</td>
+            <td>
+              <span class="badge bg-warning text-dark">
+                Working
+              </span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Team Member 4</td>
+            <td>Presentation</td>
+            <td>Build final presentation</td>
+            <td>
+              <span class="badge bg-secondary">
+                Not Started
+              </span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Team Member 5</td>
+            <td>Quality Review</td>
+            <td>Review final project</td>
+            <td>
+              <span class="badge bg-secondary">
+                Not Started
+              </span>
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
+  <!-- TASKS -->
+  <section id="tasks">
+
+    <h2 class="section-title">
+      Task Tracker
+    </h2>
+
+    <div class="card mb-5">
+
+      <div class="card-body">
+
+        <div class="table-responsive">
+
+          <table class="table align-middle">
+
+            <thead>
+
+              <tr>
+                <th>Task</th>
+                <th>Assigned To</th>
+                <th>Due Date</th>
+                <th>Status</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              <tr>
+                <td>Initial Research</td>
+                <td>Team Member 2</td>
+                <td>Sept. 15</td>
+                <td>
+                  <span class="badge bg-success">
+                    Complete
+                  </span>
+                </td>
+              </tr>
+
+              <tr>
+                <td>Data Analysis</td>
+                <td>Team Member 3</td>
+                <td>Oct. 1</td>
+                <td>
+                  <span class="badge bg-warning text-dark">
+                    In Progress
+                  </span>
+                </td>
+              </tr>
+
+              <tr>
+                <td>Develop Recommendation</td>
+                <td>Entire Team</td>
+                <td>Oct. 20</td>
+                <td>
+                  <span class="badge bg-secondary">
+                    Not Started
+                  </span>
+                </td>
+              </tr>
+
+              <tr>
+                <td>Create Presentation</td>
+                <td>Team Member 4</td>
+                <td>Nov. 15</td>
+                <td>
+                  <span class="badge bg-secondary">
+                    Not Started
+                  </span>
+                </td>
+              </tr>
+
+              <tr>
+                <td>Final Review</td>
+                <td>Entire Team</td>
+                <td>Nov. 25</td>
+                <td>
+                  <span class="badge bg-secondary">
+                    Not Started
+                  </span>
+                </td>
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- TIMELINE -->
+  <section id="timeline">
+
+    <h2 class="section-title">
+      Project Timeline
+    </h2>
+
+    <div class="list-group mb-5">
+
+      <div class="list-group-item">
+
+        <div class="d-flex justify-content-between">
+
+          <h5>
+            Phase 1 — Research
+          </h5>
+
+          <span class="badge bg-success">
+            Complete
+          </span>
+
+        </div>
+
+        <p class="mb-0">
+          Gather research and understand the project problem.
+        </p>
+
+      </div>
+
+
+      <div class="list-group-item">
+
+        <div class="d-flex justify-content-between">
+
+          <h5>
+            Phase 2 — Analysis
+          </h5>
+
+          <span class="badge bg-warning text-dark">
+            Current
+          </span>
+
+        </div>
+
+        <p class="mb-0">
+          Analyze information and determine possible solutions.
+        </p>
+
+      </div>
+
+
+      <div class="list-group-item">
+
+        <div class="d-flex justify-content-between">
+
+          <h5>
+            Phase 3 — Recommendation
+          </h5>
+
+          <span class="badge bg-secondary">
+            Upcoming
+          </span>
+
+        </div>
+
+        <p class="mb-0">
+          Decide on the team's final recommendation.
+        </p>
+
+      </div>
+
+
+      <div class="list-group-item">
+
+        <div class="d-flex justify-content-between">
+
+          <h5>
+            Phase 4 — Final Presentation
+          </h5>
+
+          <span class="badge bg-secondary">
+            Upcoming
+          </span>
+
+        </div>
+
+        <p class="mb-0">
+          Finish and present the final project.
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- NOTES -->
+  <section>
+
+    <h2 class="section-title">
+      Project Notes
+    </h2>
+
+    <div class="card">
+
+      <div class="card-body">
+
+        <h5>
+          Current Priorities
+        </h5>
+
+        <ul>
+
+          <li>
+            Finish the project analysis.
+          </li>
+
+          <li>
+            Meet as a group to discuss findings.
+          </li>
+
+          <li>
+            Begin developing the final recommendation.
+          </li>
+
+          <li>
+            Keep all project files organized in GitHub.
+          </li>
+
+        </ul>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+</div>
+
+
+<!-- FOOTER -->
+<footer>
+
+  <p class="mb-0">
+    Project Tracker | 2026
+  </p>
+
+</footer>
+
+
+<!-- Bootstrap JavaScript -->
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+  crossorigin="anonymous">
+</script>
+
 </body>
+</html>​
