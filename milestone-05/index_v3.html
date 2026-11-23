@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WOC Capital Investment Dashboard (v3)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<style>
+  body{background:#f4f2ee}
+  .hero{background:#2f4a3a;color:#fff}
+  .card{border:none;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .kpi .v{font-size:1.45rem;font-weight:700}
+  .heat td,.heat th{text-align:center;font-size:.85rem;padding:.55rem}
+  .heat td{font-weight:600}
+  table{font-size:.8rem}
+  thead th{background:#e2e8e4;position:sticky;top:0}
+  .neg{color:#b02a37;font-weight:600}.pos{color:#1e7b45;font-weight:600}
+  .rec{border-left:6px solid;padding:.8rem 1rem;border-radius:.4rem;background:#fff}
+  .ai{background:#eef3f8;border:1px dashed #7a9cc0;border-radius:.5rem}
+  .new{font-size:.62rem;vertical-align:middle}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-dark" style="background:#1f3328">
+  <div class="container"><span class="navbar-brand">Wasatch Outfitters Collective · Finance</span>
+    <span class="navbar-text small">Executive Capital Investment Dashboard</span></div>
+</nav>
+
+<header class="hero py-4">
+  <div class="container d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+      <h1 class="h3 mb-1">Which investments pay off, and where?</h1>
+      <p class="mb-0 small">2025 capital investments across Downtown SLC, Park City and Sandy. Evaluate new purchases against real history before approving them.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <select id="fLoc" class="form-select form-select-sm"><option value="">All locations</option></select>
+      <select id="fType" class="form-select form-select-sm"><option value="">All asset types</option></select>
+    </div>
+  </div>
+</header>
+
+<main class="container my-4">
+  <div id="picker" class="alert alert-secondary" hidden>Couldn't load the data automatically. Choose <code>woc_track_e_finance.csv</code>: <input type="file" accept=".csv"></div>
+
+  <!-- ===== FEATURE 1: KPI cards (respond to the filters above) ===== -->
+  <section class="row g-3 mb-3" id="kpis"></section>
+
+  <div class="row g-3 mb-3">
+    <!-- ===== FEATURE 2: ROI heatmap, average ROI by asset type × location ===== -->
+    <section class="col-lg-6"><div class="card h-100"><div class="card-body">
+      <h2 class="h6">Average ROI by asset type and location <span class="badge bg-primary new">NEW</span></h2>
+      <p class="small text-muted mb-2">The same asset can win at one store and lose at another.</p>
+      <table class="table table-bordered heat mb-0" id="heat"></table>
+    </div></div></section>
+
+    <!-- ===== FEATURE 3: Net profit chart (Chart.js) ===== -->
+    <section class="col-lg-6"><div class="card h-100"><div class="card-body">
+      <h2 class="h6">Net profit YTD by asset type <span class="badge bg-primary new">NEW</span></h2>
+      <p class="small text-muted mb-2">Total dollars gained or lost, split by location.</p>
+      <div style="height:250px"><canvas id="chart"></canvas></div>
+    </div></div></section>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <!-- ===== FEATURE 4: "Should we buy this?" investment evaluator (decision support) ===== -->
+    <section class="col-lg-7"><div class="card h-100"><div class="card-body">
+      <h2 class="h6">Should we buy this? Evaluate a new request <span class="badge bg-primary new">NEW</span></h2>
+      <p class="small text-muted">A store manager enters a proposed purchase, and the system compares it with every similar past investment.</p>
+      <div class="row g-2 mb-3">
+        <div class="col-sm-4"><select id="eLoc" class="form-select form-select-sm"></select></div>
+        <div class="col-sm-4"><select id="eType" class="form-select form-select-sm"></select></div>
+        <div class="col-sm-4"><div class="input-group input-group-sm"><span class="input-group-text">$</span><input id="eCost" type="number" class="form-control" value="30000" min="1000" step="1000"></div></div>
+      </div>
+      <div id="eOut"></div>
+    </div></div></section>
+
+    <!-- ===== FEATURE 5: Underperformer watchlist ===== -->
+    <section class="col-lg-5"><div class="card h-100"><div class="card-body">
+      <h2 class="h6">Underperformer watchlist <span class="badge bg-primary new">NEW</span></h2>
+      <p class="small text-muted mb-2">Biggest losses in the current view: review, reassign or sell.</p>
+      <table class="table table-sm mb-0"><thead><tr><th>ID</th><th>Asset</th><th>Store</th><th class="text-end">Net</th><th class="text-end">ROI</th></tr></thead><tbody id="watch"></tbody></table>
+    </div></div></section>
+  </div>
+
+  <!-- ===== FEATURE 6: Auto-generated executive summary (where an AI assistant would plug in) ===== -->
+  <section class="ai p-3 mb-3">
+    <h2 class="h6 mb-1">Executive summary: auto-generated draft <span class="badge bg-info text-dark new">AI-ASSISTED</span></h2>
+    <div id="summary" class="small"></div>
+    <p class="small text-muted mb-0 mt-2"><i>The summary is drafted from the data by the system. In production, an AI assistant would write it. The Finance Director checks it against the figures above before it goes to leadership.</i></p>
+  </section>
+
+  <!-- ===== Carried over from v2: full investment table ===== -->
+  <details class="card mb-3"><summary class="card-body py-2 fw-semibold small">All investments in this view (from v2 tracker)</summary>
+    <div style="max-height:360px;overflow:auto"><table class="table table-sm table-hover mb-0">
+      <thead><tr><th>ID</th><th>Date</th><th>Location</th><th>Asset</th><th class="text-end">Cost</th><th class="text-end">Revenue</th><th class="text-end">Maint.</th><th class="text-end">ROI</th><th>Status</th></tr></thead>
+      <tbody id="rows"></tbody></table></div>
+  </details>
+
+  <p class="small text-muted"><b>Data limitations:</b> revenue and maintenance are year-to-date, so assets bought late in 2025 have had less time to earn back their cost. Results reflect one year at three stores, and the evaluator shows historical patterns, not guarantees.</p>
+</main>
+
+<footer class="text-center small text-muted py-3">Wasatch Outfitters Collective · IS 3060 KPMG Consulting Project, Track E: Finance · Milestone 5 prototype</footer>
+
+<script>
+const RAW='https://raw.githubusercontent.com/Kevin-Peeler/FinanceGuys.github.io/main/milestone-05/woc_track_e_finance.csv';
+function parse(t){const [h,...r]=t.trim().split(/\r?\n/),k=h.split(',');return r.map(l=>{const v=l.split(','),o={};k.forEach((x,i)=>o[x]=(x==='Investment_ID'||x==='Date'||x==='Location'||x==='Asset_Type')?v[i]:+v[i]);return o})}
+async function loadData(){for(const u of ['woc_track_e_finance.csv',RAW]){try{const r=await fetch(u);if(r.ok)return parse(await r.text())}catch(e){}}
+  return new Promise(res=>{const p=document.getElementById('picker');p.hidden=false;p.querySelector('input').onchange=async e=>{p.hidden=true;res(parse(await e.target.files[0].text()))}})}
+
+const $=id=>document.getElementById(id);
+const usd=n=>(n<0?'−$':'$')+Math.abs(Math.round(n)).toLocaleString();
+const usdK=n=>(n<0?'−$':'$')+(Math.abs(n)>=1e6?(Math.abs(n)/1e6).toFixed(2)+'M':Math.round(Math.abs(n)/1e3)+'K');
+const pct=n=>(n>0?'+':'')+n.toFixed(1)+'%';
+const status=r=>r>=25?'Strong':r>=0?'OK':r>=-25?'Watch':'Underperforming';
+const badge={Strong:'success',OK:'secondary',Watch:'warning',Underperforming:'danger'};
+const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:0;
+// Portfolio ROI = total net profit ÷ total cost (weights big purchases more than a simple average)
+const stats=rows=>{const cost=rows.reduce((s,d)=>s+d.Initial_Cost,0),net=rows.reduce((s,d)=>s+d.Net_Profit,0);
+  return {n:rows.length,cost,net,roi:cost?net/cost*100:0,avgRoi:avg(rows.map(d=>d.ROI_Percent)),win:rows.length?rows.filter(d=>d.ROI_Percent>=0).length/rows.length*100:0}};
+// Color scale for the heatmap: red (loss) → white → green (gain)
+const heatColor=v=>{const t=Math.max(-1,Math.min(1,v/50));return t<0?`rgba(200,60,60,${-t*.75})`:`rgba(40,150,80,${t*.75})`};
+let data=[],LOCS=[],TYPES=[],chart;
+
+function render(){
+  const L=$('fLoc').value,T=$('fType').value;
+  const rows=data.filter(d=>(!L||d.Location===L)&&(!T||d.Asset_Type===T)),s=stats(rows);
+  // KPIs
+  const k=[['Total invested',usdK(s.cost),`${s.n} investments`],['Net profit YTD',usdK(s.net),s.net<0?'losing money overall':'making money overall'],
+           ['Portfolio ROI',pct(s.roi),'net profit ÷ cost'],['Profitable',Math.round(s.win)+'%',`${s.n-Math.round(s.win*s.n/100)} investments losing money`]];
+  $('kpis').innerHTML=k.map(([l,v,sub],i)=>`<div class="col-6 col-lg-3"><div class="card kpi"><div class="card-body py-2"><div class="small text-muted">${l}</div>
+    <div class="v ${i===1||i===2?(v.startsWith('−')||v.startsWith('-')?'neg':'pos'):''}">${v}</div><div class="small text-muted">${sub}</div></div></div></div>`).join('');
+  // Heatmap (always the full matrix so the comparison stays visible; the filtered cells are outlined)
+  $('heat').innerHTML=`<tr><th></th>${LOCS.map(l=>`<th>${l}</th>`).join('')}</tr>`+TYPES.map(t=>`<tr><th class="text-start">${t}</th>${LOCS.map(l=>{
+    const c=stats(data.filter(d=>d.Location===l&&d.Asset_Type===t)),hit=(!L||L===l)&&(!T||T===t);
+    return `<td style="background:${heatColor(c.avgRoi)};${hit&&(L||T)?'outline:3px solid #1f3328;outline-offset:-3px':''}" title="${c.n} investments · ${Math.round(c.win)}% profitable">${pct(c.avgRoi)}</td>`}).join('')}</tr>`).join('');
+  // Chart: net profit by asset type, one bar per location
+  const cols={'Downtown SLC':'#3d6b8f','Park City':'#c98a2c','Sandy':'#6f9a5b'};
+  const sets=LOCS.filter(l=>!L||l===L).map(l=>({label:l,backgroundColor:cols[l],data:TYPES.map(t=>Math.round(data.filter(d=>d.Location===l&&d.Asset_Type===t&&(!T||t===T)).reduce((s,d)=>s+d.Net_Profit,0)))}));
+  if(chart)chart.destroy();
+  chart=new Chart($('chart'),{type:'bar',data:{labels:TYPES,datasets:sets},options:{maintainAspectRatio:false,animation:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${usd(c.raw)}`}}},scales:{y:{ticks:{callback:v=>usdK(v)}}}}});
+  // Watchlist
+  $('watch').innerHTML=[...rows].sort((a,b)=>a.Net_Profit-b.Net_Profit).slice(0,8).map(d=>`<tr><td>${d.Investment_ID}</td><td>${d.Asset_Type}</td><td>${d.Location}</td><td class="text-end neg">${usdK(d.Net_Profit)}</td><td class="text-end neg">${pct(d.ROI_Percent)}</td></tr>`).join('');
+  // Full table
+  $('rows').innerHTML=[...rows].sort((a,b)=>b.ROI_Percent-a.ROI_Percent).map(d=>`<tr><td>${d.Investment_ID}</td><td>${d.Date}</td><td>${d.Location}</td><td>${d.Asset_Type}</td><td class="text-end">${usd(d.Initial_Cost)}</td><td class="text-end">${usd(d.Revenue_Generated_YTD)}</td><td class="text-end">${usd(d.Maintenance_Cost_YTD)}</td><td class="text-end ${d.ROI_Percent<0?'neg':'pos'}">${pct(d.ROI_Percent)}</td><td><span class="badge bg-${badge[d.Status]}">${d.Status}</span></td></tr>`).join('');
+  summarize(rows,s,L,T);
+}
+
+// ===== Investment evaluator: compare a proposed purchase with similar past investments =====
+function evaluate(){
+  const l=$('eLoc').value,t=$('eType').value,cost=+$('eCost').value||0;
+  const comps=data.filter(d=>d.Location===l&&d.Asset_Type===t),c=stats(comps);
+  const rois=comps.map(d=>d.ROI_Percent).sort((a,b)=>a-b);
+  const verdict=c.avgRoi>=10&&c.win>=60?['Recommend approval','#1e7b45','Similar past purchases at this store have mostly paid off.']
+              :c.avgRoi>=0?['Needs review','#c98a2c','Results are mixed, so ask for a utilization and maintenance plan before approving.']
+              :['Not recommended','#b02a37','Similar past purchases at this store have usually lost money.'];
+  const bestHere=TYPES.map(x=>[x,stats(data.filter(d=>d.Location===l&&d.Asset_Type===x)).avgRoi]).sort((a,b)=>b[1]-a[1])[0];
+  const bestWhere=LOCS.map(x=>[x,stats(data.filter(d=>d.Location===x&&d.Asset_Type===t)).avgRoi]).sort((a,b)=>b[1]-a[1])[0];
+  let alt='';
+  if(verdict[0]!=='Recommend approval'){
+    if(bestWhere[0]!==l&&bestWhere[1]>0)alt+=`<li><b>${t}</b> perform best at <b>${bestWhere[0]}</b> (avg ${pct(bestWhere[1])}). Consider placing this asset there instead.</li>`;
+    if(bestHere[0]!==t&&bestHere[1]>0)alt+=`<li>At <b>${l}</b>, <b>${bestHere[0]}</b> have done better (avg ${pct(bestHere[1])}).</li>`;
+  }
+  $('eOut').innerHTML=`<div class="rec" style="border-color:${verdict[1]}">
+    <div class="fw-bold" style="color:${verdict[1]}">${verdict[0]}</div><div class="small mb-2">${verdict[2]}</div>
+    <div class="row small g-2">
+      <div class="col-6 col-md-3"><div class="text-muted">Comparable buys</div><b>${c.n}</b></div>
+      <div class="col-6 col-md-3"><div class="text-muted">Avg ROI</div><b class="${c.avgRoi<0?'neg':'pos'}">${pct(c.avgRoi)}</b></div>
+      <div class="col-6 col-md-3"><div class="text-muted">Paid off</div><b>${Math.round(c.win)}%</b></div>
+      <div class="col-6 col-md-3"><div class="text-muted">Expected 1-yr net</div><b class="${c.avgRoi<0?'neg':'pos'}">${usd(cost*c.avgRoi/100)}</b></div>
+    </div>
+    <div class="small text-muted mt-1">Past range: ${pct(rois[0])} to ${pct(rois[rois.length-1])}</div>
+    ${alt?`<ul class="small mt-2 mb-0">${alt}</ul>`:''}</div>`;
+}
+
+// ===== Rule-based executive summary (placeholder for an AI-written draft) =====
+function summarize(rows,s,L,T){
+  const scope=[T||'all assets',L?'at '+L:'across all stores'].join(' ');
+  const cells=[];LOCS.forEach(l=>TYPES.forEach(t=>{if((!L||l===L)&&(!T||t===T)){const c=stats(data.filter(d=>d.Location===l&&d.Asset_Type===t));cells.push({l,t,...c})}}));
+  cells.sort((a,b)=>b.avgRoi-a.avgRoi);const best=cells[0],worst=cells[cells.length-1];
+  const typeLoss=TYPES.filter(t=>(!T||t===T)&&LOCS.filter(l=>!L||l===L).every(l=>stats(data.filter(d=>d.Location===l&&d.Asset_Type===t)).avgRoi<0));
+  $('summary').innerHTML=`<ul class="mb-0">
+    <li>For ${scope}, WOC invested <b>${usdK(s.cost)}</b> and is <b>${s.net<0?'down':'up'} ${usdK(Math.abs(s.net))}</b> year-to-date (portfolio ROI ${pct(s.roi)}). <b>${100-Math.round(s.win)}%</b> of investments are losing money.</li>
+    ${cells.length>1?`<li>Best combination: <b>${best.t} at ${best.l}</b> (avg ROI ${pct(best.avgRoi)}). Weakest: <b>${worst.t} at ${worst.l}</b> (${pct(worst.avgRoi)}).</li>`:''}
+    ${typeLoss.length?`<li><b>${typeLoss.join(', ')}</b> lose money at every store in this view. Pause new purchases until utilization improves.</li>`:''}
+    <li>Recommendation: require every new capital request to go through the evaluator above, and match asset types to the stores where they've historically paid off.</li></ul>`;
+}
+
+loadData().then(d=>{
+  data=d.map(r=>({...r,Status:status(r.ROI_Percent)}));
+  LOCS=[...new Set(data.map(r=>r.Location))].sort();TYPES=[...new Set(data.map(r=>r.Asset_Type))].sort();
+  LOCS.forEach(v=>{$('fLoc').add(new Option(v,v));$('eLoc').add(new Option(v,v))});
+  TYPES.forEach(v=>{$('fType').add(new Option(v,v));$('eType').add(new Option(v,v))});
+  $('eLoc').value='Park City';$('eType').value='E-Bikes';
+  ['fLoc','fType'].forEach(id=>$(id).addEventListener('input',render));
+  ['eLoc','eType','eCost'].forEach(id=>$(id).addEventListener('input',evaluate));
+  render();evaluate();
+});
+</script>
+</body>
+</html>
