@@ -186,7 +186,9 @@ function summarize(rows,s,L,T){
     <li>Recommendation: require every new capital request to go through the evaluator above, and match asset types to the stores where they've historically paid off.</li></ul>`;
 }
 
-loadData().then(d=>{
+// Make sure Chart.js is loaded (some preview sites skip the <script> tag in <head>)
+const chartReady=()=>typeof Chart!=='undefined'?Promise.resolve():new Promise(r=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js';s.onload=r;document.head.appendChild(s)});
+Promise.all([loadData(),chartReady()]).then(([d])=>{
   data=d.map(r=>({...r,Status:status(r.ROI_Percent)}));
   LOCS=[...new Set(data.map(r=>r.Location))].sort();TYPES=[...new Set(data.map(r=>r.Asset_Type))].sort();
   LOCS.forEach(v=>{$('fLoc').add(new Option(v,v));$('eLoc').add(new Option(v,v))});
