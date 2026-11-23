@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WOC Investment Tracker (v2: Improved)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<style>
+  body{background:#f4f2ee}
+  .hero{background:#2f4a3a;color:#fff}
+  .kpi{background:#fff;border-radius:.5rem;padding:.8rem 1rem;border-left:4px solid #2f4a3a}
+  .kpi .v{font-size:1.4rem;font-weight:700}
+  table{font-size:.82rem}
+  thead th{background:#e2e8e4;position:sticky;top:0;cursor:pointer;white-space:nowrap}
+  .neg{color:#b02a37;font-weight:600}.pos{color:#1e7b45;font-weight:600}
+  .new{font-size:.65rem;vertical-align:middle}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-dark" style="background:#1f3328">
+  <div class="container"><span class="navbar-brand">Wasatch Outfitters Collective · Finance</span>
+    <span class="navbar-text small">Home · About · Contact</span></div>
+</nav>
+
+<header class="hero py-4">
+  <div class="container">
+    <h1 class="h3">Capital Investment Tracker</h1>
+    <p class="mb-0">All three stores in one place, with ROI calculated automatically and weak investments flagged.</p>
+  </div>
+</header>
+
+<main class="container my-4">
+  <!-- Core process info carried over from v1 -->
+  <details class="mb-3 small">
+    <summary class="fw-semibold">About the process: what changed from v1</summary>
+    <p class="mt-2 mb-1"><b>Before:</b> three separate store spreadsheets, no totals, no ROI, approvals based on experience.</p>
+    <p class="mb-0"><b>Now:</b> one combined record for every investment, with ROI = (Revenue − Maintenance − Cost) ÷ Cost calculated automatically, filters by store and asset type, and status flags.</p>
+  </details>
+
+  <!-- ===== NEW FEATURE 1: Filters for location / asset type / status / search ===== -->
+  <section class="card mb-3"><div class="card-body py-2">
+    <span class="badge bg-success new">NEW</span> <b class="small">Filters</b>
+    <div class="row g-2 mt-1">
+      <div class="col-6 col-md-3"><select id="fLoc" class="form-select form-select-sm"><option value="">All locations</option></select></div>
+      <div class="col-6 col-md-3"><select id="fType" class="form-select form-select-sm"><option value="">All asset types</option></select></div>
+      <div class="col-6 col-md-3"><select id="fStatus" class="form-select form-select-sm"><option value="">All statuses</option><option>Strong</option><option>OK</option><option>Watch</option><option>Underperforming</option></select></div>
+      <div class="col-6 col-md-3"><input id="fSearch" class="form-control form-control-sm" placeholder="Search ID or date"></div>
+    </div>
+  </div></section>
+
+  <!-- ===== NEW FEATURE 2: Automatic totals (KPIs) for whatever is filtered ===== -->
+  <section class="row g-2 mb-3" id="kpis"></section>
+
+  <!-- ===== NEW FEATURE 3: Combined, sortable table with calculated ROI and status flags ===== -->
+  <section>
+    <div class="bg-white border" style="max-height:460px;overflow:auto">
+      <table class="table table-sm table-hover mb-0">
+        <thead><tr>
+          <th data-k="Investment_ID">ID</th><th data-k="Date">Date</th><th data-k="Location">Location</th><th data-k="Asset_Type">Asset Type</th>
+          <th data-k="Initial_Cost" class="text-end">Cost</th><th data-k="Revenue_Generated_YTD" class="text-end">Revenue YTD</th><th data-k="Maintenance_Cost_YTD" class="text-end">Maint. YTD</th>
+          <th data-k="Net_Profit" class="text-end">Net</th><th data-k="ROI_Percent" class="text-end">ROI ▾</th><th data-k="Status">Status</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <p class="small text-muted mt-2">Status rules: <b>Strong</b> ROI ≥ 25% · <b>OK</b> 0–25% · <b>Watch</b> 0 to −25% · <b>Underperforming</b> below −25%. Click a column header to sort.</p>
+    <div id="picker" class="alert alert-secondary mt-2" hidden>Couldn't load the data automatically. Choose <code>woc_track_e_finance.csv</code>: <input type="file" accept=".csv"></div>
+  </section>
+</main>
+
+<footer class="text-center small text-muted py-3">Wasatch Outfitters Collective · Salt Lake City, UT · finance@woc.example · IS 3060 KPMG Project, Track E</footer>
+
+<script>
+const RAW='https://raw.githubusercontent.com/Kevin-Peeler/FinanceGuys.github.io/main/milestone-05/woc_track_e_finance.csv';
+function parse(t){const [h,...r]=t.trim().split(/\r?\n/),k=h.split(',');return r.map(l=>{const v=l.split(','),o={};k.forEach((x,i)=>o[x]=(x==='Investment_ID'||x==='Date'||x==='Location'||x==='Asset_Type')?v[i]:+v[i]);return o})}
+async function loadData(){for(const u of ['woc_track_e_finance.csv',RAW]){try{const r=await fetch(u);if(r.ok)return parse(await r.text())}catch(e){}}
+  return new Promise(res=>{const p=document.getElementById('picker');p.hidden=false;p.querySelector('input').onchange=async e=>{p.hidden=true;res(parse(await e.target.files[0].text()))}})}
+
+const $=id=>document.getElementById(id);
+const usd=n=>(n<0?'−$':'$')+Math.abs(Math.round(n)).toLocaleString();
+const pct=n=>(n>0?'+':'')+n.toFixed(1)+'%';
+// Status flag rule (new in v2)
+const status=r=>r>=25?'Strong':r>=0?'OK':r>=-25?'Watch':'Underperforming';
+const badge={Strong:'success',OK:'secondary',Watch:'warning',Underperforming:'danger'};
+let data=[],sortK='ROI_Percent',asc=false;
+
+function render(){
+  const L=$('fLoc').value,T=$('fType').value,S=$('fStatus').value,q=$('fSearch').value.toLowerCase();
+  const rows=data.filter(d=>(!L||d.Location===L)&&(!T||d.Asset_Type===T)&&(!S||d.Status===S)&&(!q||(d.Investment_ID+d.Date).toLowerCase().includes(q)))
+    .sort((a,b)=>(a[sortK]>b[sortK]?1:-1)*(asc?1:-1));
+  // KPIs: calculated automatically for the current filter
+  const sum=k=>rows.reduce((s,d)=>s+d[k],0),cost=sum('Initial_Cost'),net=sum('Net_Profit');
+  const neg=rows.filter(d=>d.ROI_Percent<0).length;
+  const k=[['Investments',rows.length],['Total invested',usd(cost)],['Net profit YTD',usd(net)],['Portfolio ROI',cost?pct(net/cost*100):'n/a'],['Losing money',rows.length?Math.round(neg/rows.length*100)+'%':'n/a']];
+  $('kpis').innerHTML=k.map(([l,v])=>`<div class="col"><div class="kpi"><div class="small text-muted">${l}</div><div class="v">${v}</div></div></div>`).join('');
+  $('rows').innerHTML=rows.map(d=>`<tr><td>${d.Investment_ID}</td><td>${d.Date}</td><td>${d.Location}</td><td>${d.Asset_Type}</td>
+    <td class="text-end">${usd(d.Initial_Cost)}</td><td class="text-end">${usd(d.Revenue_Generated_YTD)}</td><td class="text-end">${usd(d.Maintenance_Cost_YTD)}</td>
+    <td class="text-end ${d.Net_Profit<0?'neg':'pos'}">${usd(d.Net_Profit)}</td><td class="text-end ${d.ROI_Percent<0?'neg':'pos'}">${pct(d.ROI_Percent)}</td>
+    <td><span class="badge bg-${badge[d.Status]}">${d.Status}</span></td></tr>`).join('')||'<tr><td colspan="10">No matching investments.</td></tr>';
+}
+
+loadData().then(d=>{
+  data=d.map(r=>({...r,Status:status(r.ROI_Percent)}));
+  for(const [id,k] of [['fLoc','Location'],['fType','Asset_Type']])
+    [...new Set(data.map(r=>r[k]))].sort().forEach(v=>$(id).add(new Option(v,v)));
+  ['fLoc','fType','fStatus','fSearch'].forEach(id=>$(id).addEventListener('input',render));
+  document.querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{asc=sortK===th.dataset.k?!asc:false;sortK=th.dataset.k;render()});
+  render();
+});
+</script>
+</body>
+</html>
