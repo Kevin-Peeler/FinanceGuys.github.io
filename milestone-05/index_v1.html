@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WOC Capital Investment Log (v1: As-Is)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<style>
+  body{background:#f4f2ee}
+  .hero{background:#2f4a3a;color:#fff}
+  table{font-size:.82rem}
+  .sheet thead th{background:#e2e8e4;position:sticky;top:0}
+  .tab{display:inline-block;padding:.25rem .8rem;border:1px solid #ccc;border-bottom:none;background:#fff;font-size:.8rem;margin-right:2px}
+  .tab.off{background:#e9e9e9;color:#777}
+</style>
+</head>
+<body>
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar navbar-dark" style="background:#1f3328">
+  <div class="container"><span class="navbar-brand">Wasatch Outfitters Collective · Finance</span>
+    <span class="navbar-text small">Home · About · Contact</span></div>
+</nav>
+
+<!-- ===== HERO: explains the current (as-is) process ===== -->
+<header class="hero py-4">
+  <div class="container">
+    <h1 class="h3">Capital Investment Log</h1>
+    <p class="mb-0">How WOC tracks equipment and facility investments today: one spreadsheet tab per store, updated by hand.</p>
+  </div>
+</header>
+
+<main class="container my-4">
+  <!-- ===== ABOUT THE PROCESS (as-is) ===== -->
+  <section class="row g-3 mb-4">
+    <div class="col-md-7">
+      <div class="card h-100"><div class="card-body">
+        <h2 class="h5">About the Process (As-Is)</h2>
+        <ol class="small mb-0">
+          <li>A store manager emails the Finance Director asking to buy an asset (e-bikes, skis, a van, a remodel).</li>
+          <li>The request is approved based on the manager's experience. There is no standard ROI analysis.</li>
+          <li>The purchase is typed into that store's spreadsheet tab.</li>
+          <li>Revenue and maintenance are added at month-end from separate reports.</li>
+          <li>Nobody compares performance across stores before the next purchase.</li>
+        </ol>
+      </div></div>
+    </div>
+    <div class="col-md-5">
+      <div class="card h-100 border-warning"><div class="card-body">
+        <h2 class="h5">Known Problems</h2>
+        <ul class="small mb-0">
+          <li>No ROI calculation or totals. Managers have to work them out by hand.</li>
+          <li>Data is split across three store tabs.</li>
+          <li>Poor investments aren't flagged, so the same mistakes repeat.</li>
+          <li>Executives can't see which assets work at which location.</li>
+        </ul>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ===== CURRENT INFORMATION: raw spreadsheet view, one store at a time ===== -->
+  <section>
+    <h2 class="h5">Current Information</h2>
+    <div id="tabs"></div>
+    <div class="bg-white border" style="max-height:480px;overflow:auto">
+      <table class="table table-sm table-bordered mb-0 sheet">
+        <thead><tr><th>Investment ID</th><th>Date</th><th>Asset Type</th><th>Initial Cost</th><th>Revenue YTD</th><th>Maintenance YTD</th></tr></thead>
+        <tbody id="rows"><tr><td colspan="6">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="small text-muted mt-2" id="count"></p>
+    <div id="picker" class="alert alert-secondary mt-2" hidden>Couldn't load the data automatically. Choose <code>woc_track_e_finance.csv</code>: <input type="file" accept=".csv"></div>
+  </section>
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="text-center small text-muted py-3">Wasatch Outfitters Collective · Salt Lake City, UT · finance@woc.example · IS 3060 KPMG Project, Track E</footer>
+
+<script>
+// ===== DATA LOADING: same-folder CSV, then the GitHub copy, then a manual file picker =====
+const RAW='https://raw.githubusercontent.com/Kevin-Peeler/FinanceGuys.github.io/main/milestone-05/woc_track_e_finance.csv';
+function parse(t){const [h,...r]=t.trim().split(/\r?\n/),k=h.split(',');return r.map(l=>{const v=l.split(','),o={};k.forEach((x,i)=>o[x]=(x==='Investment_ID'||x==='Date'||x==='Location'||x==='Asset_Type')?v[i]:+v[i]);return o})}
+async function loadData(){for(const u of ['woc_track_e_finance.csv',RAW]){try{const r=await fetch(u);if(r.ok)return parse(await r.text())}catch(e){}}
+  return new Promise(res=>{const p=document.getElementById('picker');p.hidden=false;p.querySelector('input').onchange=async e=>{p.hidden=true;res(parse(await e.target.files[0].text()))}})}
+
+// ===== AS-IS VIEW: one store tab at a time, raw numbers, no totals or ROI =====
+const money=n=>n.toFixed(2);
+loadData().then(data=>{
+  const stores=['Downtown SLC','Park City','Sandy'];
+  const show=s=>{
+    document.getElementById('tabs').innerHTML=stores.map(x=>`<span class="tab ${x===s?'':'off'}" role="button" onclick="window.show('${x}')">${x}.xlsx</span>`).join('');
+    const rows=data.filter(d=>d.Location===s);
+    document.getElementById('rows').innerHTML=rows.map(d=>`<tr><td>${d.Investment_ID}</td><td>${d.Date}</td><td>${d.Asset_Type}</td><td>${money(d.Initial_Cost)}</td><td>${money(d.Revenue_Generated_YTD)}</td><td>${money(d.Maintenance_Cost_YTD)}</td></tr>`).join('');
+    document.getElementById('count').textContent=`${rows.length} rows in ${s}.xlsx · Totals and ROI not calculated · Other stores are in separate files`;
+  };
+  window.show=show;show(stores[0]);
+});
+</script>
+</body>
+</html>
