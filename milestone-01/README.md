@@ -1,8 +1,8 @@
 # Milestone 01: Financial Performance Analysis
 
 **Course lab:** Lab 2: Tableau  
-**Owner:** _[name]_  
-**Completed:** _[date]_
+**Owner:** Wes
+**Completed:** yes
 
 ## What this milestone does
 Analyze the WOC finance dataset to find asset ROI, maintenance cost trends, and location-specific investment opportunities.
