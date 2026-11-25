@@ -1,4 +1,4 @@
-# Milestone 05: AI-Assisted Financial Dashboard Prototype
+# Milestone 05 (lab 7): AI-Assisted Financial Dashboard Prototype
 
 **Course lab:** Lab 7: AI-built web page  
 **Owner:** Braden Stein  
