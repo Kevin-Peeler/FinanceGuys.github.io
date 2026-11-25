@@ -1,4 +1,4 @@
-# Milestone 01: Financial Performance Analysis
+# Milestone 01(lab 2): Financial Performance Analysis
 
 **Course lab:** Lab 2: Tableau  
 **Owner:** Wes
