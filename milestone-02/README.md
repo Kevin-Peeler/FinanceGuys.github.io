@@ -1,4 +1,4 @@
-# Milestone 02: Decision Support & Business Analysis
+# Milestone 02(LAB 8): Decision Support & Business Analysis
 
 **Course lab:** Lab 8: Social Media Assistant
 **Owner:** _[name]_  
