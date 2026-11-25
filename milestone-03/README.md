@@ -1,4 +1,4 @@
-# Milestone 03: Executive Decision Dashboard Prototype
+# Milestone 03(lab 3): Executive Decision Dashboard Prototype
 
 **Course lab:** Lab 3: Thunkable  
 **Owner:** _[name]_  
@@ -11,7 +11,6 @@ Mobile prototype that lets managers monitor asset performance, compare investmen
 - Screenshots of each app screen and/or a Thunkable share link
 
 ## Key finding / decision
-_[1–3 sentences: what did this milestone show, and what did it lead us to recommend?]_
-
+use data to gain insights like roi and employee information
 ## How it connects
-Mobile view of the dashboard recommended in Milestone 2.
+Mobile view of the dashboard and see which assets are profitable
